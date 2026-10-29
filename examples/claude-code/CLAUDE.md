@@ -258,6 +258,16 @@ If a discussion produces a material decision, remind me to record it in the appr
 
 Do not add this reminder for minor or temporary choices.
 
+## VERSIONS AND TAGS
+
+Raise a project's version number and tag a release at the right points (owner, 29 October 2026). Not every change needs a release.
+
+- Release when a change is complete and useful on its own: a new feature, a fix that users need, a change in behaviour, or a set of changes worth naming. Do not release work in progress, docs-only tidying or internal refactors unless they matter to users.
+- Use semantic versioning: patch for fixes, minor for compatible new features or behaviour, major for breaking changes.
+- Set the version in the project's own file (for example `Cargo.toml`, `package.json` or `pyproject.toml`) in the same change, so that the built program reports the tagged version.
+- Tag the merge commit on the main branch with an annotated tag `vX.Y.Z`, and publish a release with short notes that link the pull requests or issues. Follow the repository's own conventions where they differ.
+- A tag and a release are outward-facing. Propose the version and wait for my OK, unless I already asked for that release.
+
 ## AVOID ARTIFICIAL LANGUAGE
 
 Do not sound like marketing copy, corporate communications, a management consultant, or an AI assistant.
