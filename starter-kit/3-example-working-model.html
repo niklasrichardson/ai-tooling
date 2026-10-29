@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Example Working Model</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column (about 68ch) with wide breakouts for the diagram and the tables. Fonts are IBM Plex. */
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --fg: #1b1f27;
+  --muted: #586174;
+  --line: #d5dae3;
+  --accent: #0f62fe;
+  --accent-soft: #e5eeff;
+  --owner: #8a3ffc;
+  --owner-soft: #f1e8ff;
+  --dev: #007d79;
+  --dev-soft: #dcf4f3;
+  --design: #b2560b;
+  --design-soft: #fdeedd;
+  --font-display: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14171d; --surface: #1d2129; --fg: #e8ebf1; --muted: #a2abbc; --line: #343b48;
+    --accent: #78a9ff; --accent-soft: #1c2b4a; --owner: #be95ff; --owner-soft: #2d2142;
+    --dev: #3ddbd9; --dev-soft: #12302f; --design: #ffb066; --design-soft: #3a2614;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14171d; --surface: #1d2129; --fg: #e8ebf1; --muted: #a2abbc; --line: #343b48;
+  --accent: #78a9ff; --accent-soft: #1c2b4a; --owner: #be95ff; --owner-soft: #2d2142;
+  --dev: #3ddbd9; --dev-soft: #12302f; --design: #ffb066; --design-soft: #3a2614;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 16.5px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 72px;
+}
+main { max-width: 1040px; margin: 0 auto; display: grid; gap: 56px; }
+.col { max-width: 68ch; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; text-wrap: balance; line-height: 1.15; margin: 0; }
+h1 { font-size: clamp(2rem, 5vw, 2.9rem); letter-spacing: -0.01em; }
+h2 { font-size: 1.65rem; }
+h3 { font-size: 1.15rem; }
+p { margin: 0; }
+section { display: grid; gap: 18px; }
+.eyebrow { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.lede { font-size: 1.15rem; color: var(--fg); }
+.muted { color: var(--muted); }
+code, .mono { font-family: var(--font-mono); font-size: 0.88em; }
+code { background: var(--accent-soft); padding: 0.05em 0.35em; border-radius: 3px; overflow-wrap: anywhere; }
+a { color: var(--accent); }
+
+header { display: grid; gap: 14px; }
+.keyfacts { display: flex; flex-wrap: wrap; gap: 10px 28px; font-size: 0.92rem; color: var(--muted); }
+.keyfacts b { color: var(--fg); font-family: var(--font-mono); font-weight: 500; }
+
+.figure { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 18px; display: grid; gap: 12px; }
+.scroll { overflow-x: auto; }
+.figure svg { display: block; width: 100%; min-width: 760px; height: auto; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 0.85rem; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.sw { width: 26px; height: 0; border-top: 2px solid var(--fg); display: inline-block; }
+.sw.dash { border-top-style: dashed; border-color: var(--owner); }
+.sw.direct { border-color: var(--design); }
+
+/* Start-up stack */
+.stack { display: grid; gap: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--surface); }
+.layer { display: grid; grid-template-columns: 3.2rem 1fr; gap: 0; border-top: 1px solid var(--line); }
+.layer:first-child { border-top: 0; }
+.layer .n { font-family: var(--font-mono); font-size: 0.9rem; color: var(--muted); display: grid; place-items: start center; padding-top: 16px; border-right: 1px solid var(--line); }
+.layer .body { padding: 14px 18px; display: grid; gap: 4px; min-width: 0; }
+.layer .what { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.tag { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.04em; padding: 1px 7px; border-radius: 3px; white-space: nowrap; }
+.tag.auto { background: var(--accent-soft); color: var(--accent); }
+.tag.read { background: var(--dev-soft); color: var(--dev); }
+.tag.owner { background: var(--owner-soft); color: var(--owner); }
+
+/* Tables */
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; min-width: 720px; font-size: 0.93rem; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-top: 1px solid var(--line); }
+thead th { border-top: 0; font-family: var(--font-mono); font-size: 0.74rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); background: var(--bg); }
+td:first-child { font-weight: 600; white-space: nowrap; }
+
+/* Decision rights */
+.rights { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+.right { background: var(--surface); border: 1px solid var(--line); border-top: 3px solid var(--c); border-radius: 6px; padding: 14px 16px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.right ul { margin: 0; padding-left: 1.1em; font-size: 0.93rem; display: grid; gap: 3px; }
+.rule { border-left: 3px solid var(--owner); background: var(--owner-soft); padding: 12px 16px; border-radius: 0 6px 6px 0; }
+
+/* Flow */
+ol.flow { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; counter-reset: s; }
+ol.flow li { counter-increment: s; display: grid; grid-template-columns: 2.4rem 1fr; gap: 12px; padding: 10px 0; border-top: 1px dashed var(--line); }
+ol.flow li:first-child { border-top: 0; }
+ol.flow li::before { content: counter(s); font-family: var(--font-mono); font-size: 0.9rem; width: 1.9rem; height: 1.9rem; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
+ol.flow li > div { min-width: 0; }
+
+/* Timeline */
+.timeline { display: grid; gap: 0; }
+.t { display: grid; grid-template-columns: 6.5rem 1fr; gap: 16px; padding: 9px 0; border-top: 1px solid var(--line); }
+.t:first-child { border-top: 0; }
+.t time { font-family: var(--font-mono); font-size: 0.85rem; color: var(--muted); padding-top: 2px; font-variant-numeric: tabular-nums; }
+.t div { min-width: 0; }
+
+ul.plain { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; }
+
+/* Folders and repositories */
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; align-items: start; }
+.two > * { min-width: 0; }
+pre.tree { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; overflow-x: auto; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.55; color: var(--fg); }
+pre.tree .c { color: var(--muted); }
+pre.tree .k { color: var(--accent); font-weight: 500; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; display: grid; gap: 10px; }
+.panel h3 { font-size: 1rem; }
+.panel ul { margin: 0; padding-left: 1.1em; display: grid; gap: 5px; font-size: 0.93rem; }
+footer { font-size: 0.85rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 16px; }
+
+@media (max-width: 560px) {
+  body { font-size: 15.5px; }
+  .t { grid-template-columns: 1fr; gap: 2px; }
+}
+</style>
+</head>
+<body>
+<main>
+  <header class="col">
+    <div class="eyebrow">Worked example for the LLM starter kit</div>
+    <h1>Example Working Model</h1>
+    <p class="lede">One person (the <b>owner</b>) and about a dozen AI coding sessions build three apps. Each session has one role and works in its own folder. They talk through a message queue, write every decision into git or an issue, and read those files again each time they start. The owner does not have to explain the process again.</p>
+    <p class="muted" style="font-size:0.93rem">This page describes a real set-up from October 2026, with the names changed. The apps are called Atlas, Beacon and Compass here. Files 1 and 2 of the kit tell your AI tool how to build the same set-up for you.</p>
+  </header>
+
+  <section>
+    <div class="col" style="display:grid;gap:10px">
+      <h2>Who does what</h2>
+      <p>The owner talks mainly to one session, <b>Lead</b>. Lead owns the shared standards and coordinates the other sessions. Developer sessions write the app code. Design sessions own each app's screens and words.</p>
+    </div>
+    <div class="figure">
+      <div class="scroll">
+        <svg viewBox="0 0 980 560" role="img" aria-labelledby="dg-title dg-desc">
+          <title id="dg-title">Sessions and how they connect</title>
+          <desc id="dg-desc">The owner talks to Lead. Lead coordinates three developer sessions on the left and six design sessions on the right. Each developer talks directly to its own app's designer. The owner approves risky actions inside the session that does them. All sessions share the message queue, the issues and the hub repository.</desc>
+          <defs>
+            <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--fg)"/></marker>
+            <marker id="ahd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--owner)"/></marker>
+            <marker id="ahs" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--design)"/></marker>
+          </defs>
+          <style>
+            .lbl { font-family: "IBM Plex Sans", system-ui, sans-serif; font-size: 14px; fill: var(--fg); }
+            .lbl-b { font-family: "IBM Plex Sans", system-ui, sans-serif; font-size: 15px; font-weight: 600; fill: var(--fg); }
+            .sub { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11.5px; fill: var(--muted); }
+            .edge { font-family: "IBM Plex Sans", system-ui, sans-serif; font-size: 12px; fill: var(--muted); }
+            .grp { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; letter-spacing: 0.08em; fill: var(--muted); }
+          </style>
+
+          <rect x="390" y="16" width="200" height="56" rx="6" fill="var(--owner-soft)" stroke="var(--owner)" stroke-width="1.5"/>
+          <text x="490" y="40" text-anchor="middle" class="lbl-b">Owner (you)</text>
+          <text x="490" y="59" text-anchor="middle" class="sub">final say</text>
+
+          <rect x="370" y="152" width="240" height="66" rx="6" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+          <text x="490" y="178" text-anchor="middle" class="lbl-b">Lead</text>
+          <text x="490" y="197" text-anchor="middle" class="sub">standards owner, coordinator</text>
+          <line x1="490" y1="74" x2="490" y2="149" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#ah)" marker-start="url(#ah)"/>
+          <text x="500" y="117" class="edge">single point of contact</text>
+
+          <text x="24" y="262" class="grp">APP DEVELOPERS · CODE</text>
+          <rect x="16" y="272" width="230" height="200" rx="6" fill="none" stroke="var(--line)" stroke-dasharray="3 4"/>
+          <rect x="30" y="286" width="202" height="50" rx="5" fill="var(--dev-soft)" stroke="var(--dev)"/>
+          <text x="131" y="308" text-anchor="middle" class="lbl-b">Atlas Dev</text>
+          <text x="131" y="325" text-anchor="middle" class="sub">repo: atlas</text>
+          <rect x="30" y="346" width="202" height="50" rx="5" fill="var(--dev-soft)" stroke="var(--dev)"/>
+          <text x="131" y="368" text-anchor="middle" class="lbl-b">Beacon Dev</text>
+          <text x="131" y="385" text-anchor="middle" class="sub">repo: beacon</text>
+          <rect x="30" y="406" width="202" height="50" rx="5" fill="var(--dev-soft)" stroke="var(--dev)"/>
+          <text x="131" y="428" text-anchor="middle" class="lbl-b">Compass Dev</text>
+          <text x="131" y="445" text-anchor="middle" class="sub">repo: compass</text>
+
+          <text x="702" y="262" class="grp">DESIGN · SCREENS AND WORDS</text>
+          <rect x="694" y="272" width="270" height="270" rx="6" fill="none" stroke="var(--line)" stroke-dasharray="3 4"/>
+          <rect x="708" y="286" width="242" height="34" rx="5" fill="var(--design-soft)" stroke="var(--design)"/>
+          <text x="829" y="308" text-anchor="middle" class="lbl">Atlas Design</text>
+          <rect x="708" y="328" width="242" height="34" rx="5" fill="var(--design-soft)" stroke="var(--design)"/>
+          <text x="829" y="350" text-anchor="middle" class="lbl">Beacon Design</text>
+          <rect x="708" y="370" width="242" height="34" rx="5" fill="var(--design-soft)" stroke="var(--design)"/>
+          <text x="829" y="392" text-anchor="middle" class="lbl">Compass Design</text>
+          <rect x="708" y="412" width="242" height="34" rx="5" fill="var(--surface)" stroke="var(--design)"/>
+          <text x="829" y="434" text-anchor="middle" class="lbl">Icons</text>
+          <rect x="708" y="454" width="242" height="34" rx="5" fill="var(--surface)" stroke="var(--design)"/>
+          <text x="829" y="476" text-anchor="middle" class="lbl">Design system (desktop)</text>
+          <rect x="708" y="496" width="242" height="34" rx="5" fill="var(--surface)" stroke="var(--design)"/>
+          <text x="829" y="518" text-anchor="middle" class="lbl">Design system (mobile)</text>
+
+          <path d="M370,200 C300,220 280,250 248,290" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#ah)" marker-start="url(#ah)"/>
+          <text x="262" y="226" class="edge" text-anchor="end">rulings, gates</text>
+          <path d="M610,200 C680,220 700,250 706,284" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#ah)" marker-start="url(#ah)"/>
+          <text x="682" y="226" class="edge">briefs, acceptance</text>
+
+          <path d="M390,44 C200,44 140,150 131,282" fill="none" stroke="var(--owner)" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#ahd)"/>
+          <text x="182" y="142" class="edge">approves risky actions,</text>
+          <text x="182" y="158" class="edge">inside that session</text>
+
+          <path d="M232,311 C450,300 520,300 706,303" fill="none" stroke="var(--design)" stroke-width="1.5" marker-end="url(#ahs)" marker-start="url(#ahs)"/>
+          <path d="M232,371 C450,350 520,345 706,345" fill="none" stroke="var(--design)" stroke-width="1.5" marker-end="url(#ahs)" marker-start="url(#ahs)"/>
+          <path d="M232,431 C450,410 520,392 706,387" fill="none" stroke="var(--design)" stroke-width="1.5" marker-end="url(#ahs)" marker-start="url(#ahs)"/>
+          <text x="470" y="282" text-anchor="middle" class="edge">own-app design words, direct</text>
+
+          <rect x="262" y="470" width="416" height="72" rx="6" fill="var(--surface)" stroke="var(--fg)" stroke-width="1"/>
+          <text x="470" y="492" text-anchor="middle" class="grp">SHARED BY EVERY SESSION</text>
+          <text x="470" y="514" text-anchor="middle" class="lbl">message queue · issues</text>
+          <text x="470" y="532" text-anchor="middle" class="lbl">project-hub repo (standards, briefs, state)</text>
+        </svg>
+      </div>
+      <div class="legend">
+        <span><i class="sw"></i>messages through the queue, records in issues</span>
+        <span><i class="sw direct"></i>developer and own designer, no Lead in between</span>
+        <span><i class="sw dash"></i>the owner acts in that session directly</span>
+      </div>
+    </div>
+    <p class="col muted" style="font-size:0.93rem">You do not need all of this on day one. One owner and one developer session is a complete set-up. Add Lead when two or more sessions run at once, and designers only if you want separate design work.</p>
+  </section>
+
+  <section>
+    <div class="col" style="display:grid;gap:10px">
+      <h2>Folders and repositories</h2>
+      <p>Each project is one <b>git repository</b>. It exists in two places: a private repository on GitHub (or similar), and a local clone on the owner's computer. Sessions work locally and push to GitHub. GitHub also holds the <b>issues</b>, where proposals, rulings and test reports are written.</p>
+    </div>
+    <div class="two">
+      <pre class="tree" aria-label="Local folders"><span class="c">~/code/</span>
+├─ <span class="k">projects/</span>
+│  ├─ <span class="k">project-hub/</span>         <span class="c">Lead + all design sessions</span>
+│  │  ├─ standards.md       <span class="c">rules every app follows</span>
+│  │  ├─ design-guide.md    <span class="c">UI rules</span>
+│  │  ├─ STATE.md           <span class="c">Lead's state and decisions</span>
+│  │  ├─ briefs/            <span class="c">numbered briefs</span>
+│  │  ├─ handoffs/&lt;app&gt;/    <span class="c">each designer's area</span>
+│  │  ├─ design-system/
+│  │  └─ .claude/worktrees/ <span class="c">one copy per session</span>
+│  ├─ <span class="k">atlas/</span>               <span class="c">Atlas Dev</span>
+│  ├─ <span class="k">beacon/</span>              <span class="c">Beacon Dev</span>
+│  └─ <span class="k">compass/</span>             <span class="c">Compass Dev</span>
+└─ <span class="k">tools/</span>
+   ├─ <span class="k">session-queue/</span>       <span class="c">the message queue</span>
+   └─ <span class="k">ai-config/</span>           <span class="c">AI tool set-up and decisions</span>
+
+<span class="c">~/.claude/</span>               <span class="c">(Codex: ~/.codex/)</span>
+├─ CLAUDE.md              <span class="c">personal rules, all sessions</span>
+├─ settings.json          <span class="c">hooks and permissions</span>
+└─ projects/&lt;folder&gt;/memory/ <span class="c">each project's memory</span></pre>
+      <div style="display:grid;gap:16px">
+        <div class="panel">
+          <h3>Repositories</h3>
+          <ul>
+            <li><span class="mono">project-hub</span>: standards, design guide, briefs and Lead's state.</li>
+            <li><span class="mono">atlas</span>, <span class="mono">beacon</span>, <span class="mono">compass</span>: one per app, each with its own issues.</li>
+            <li><span class="mono">session-queue</span> and <span class="mono">ai-config</span>: general tools, not tied to one app.</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h3>Three things that confuse people</h3>
+          <ul>
+            <li><b>One repository, many sessions.</b> Lead and the design sessions all work in <span class="mono">project-hub</span>. Each one has its own area of folders, and the repo's <span class="mono">CLAUDE.md</span> says which areas each session may edit.</li>
+            <li><b>Worktrees.</b> Each session gets its own working copy (a git worktree) on its own branch. Two sessions in one repo never change the same files on disk.</li>
+            <li><b>Branches.</b> <span class="mono">main</span> is the agreed version. Sessions commit on their own branches. App developers fast-forward their own <span class="mono">main</span> when the work is ready. In the hub repo, only Lead merges into <span class="mono">main</span>.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="col" style="display:grid;gap:10px">
+      <h2>Getting parallel work back into main</h2>
+      <p>Conflicts are rare because each session owns its own files. Before every push, a session runs one check:</p>
+    </div>
+    <pre class="tree col">git fetch
+git merge-base --is-ancestor origin/main HEAD &amp;&amp; git push origin HEAD:main</pre>
+    <ul class="plain col">
+      <li><b>The check passes</b> when the branch already contains everything on main. The push only adds commits on top (a fast-forward), so nobody's work is lost.</li>
+      <li><b>The check fails</b> when main has moved. The session merges <span class="mono">origin/main</span> into its branch, resolves conflicts, runs the checks again, and tries again.</li>
+      <li><b>No rebasing and no force-pushing.</b> History is never rewritten, so a commit that a decision cites stays valid.</li>
+      <li><b>After a push,</b> Lead updates the main local folder, so other sessions can read the latest standards by path.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="col" style="display:grid;gap:10px">
+      <h2>How a session knows how to work</h2>
+      <p>An AI session keeps no memory between conversations. Every rule therefore lives in a file that the session loads or reads at start. When a session's context fills up, the owner clears it and pastes a short handover prompt that points to these files.</p>
+    </div>
+    <div class="stack">
+      <div class="layer"><div class="n">1</div><div class="body">
+        <div class="what"><h3>Personal instructions</h3><span class="tag auto">loaded automatically</span></div>
+        <p><code>~/.claude/CLAUDE.md</code> (Codex: <code>~/.codex/AGENTS.md</code>): how to write for the owner, which model does which job, and how to join the queue. Kit file 1 sets this up.</p>
+      </div></div>
+      <div class="layer"><div class="n">2</div><div class="body">
+        <div class="what"><h3>Memory</h3><span class="tag auto">loaded automatically</span></div>
+        <p>One folder per project, with an index and one small file per learnt fact. Each session writes its own memory.</p>
+      </div></div>
+      <div class="layer"><div class="n">3</div><div class="body">
+        <div class="what"><h3>The repository's CLAUDE.md</h3><span class="tag auto">loaded automatically</span></div>
+        <p>The session's role, its limits and its <b>scope</b>: who may send it messages, which tasks it may do, and what is out of bounds.</p>
+      </div></div>
+      <div class="layer"><div class="n">4</div><div class="body">
+        <div class="what"><h3>Hooks</h3><span class="tag auto">runs automatically</span></div>
+        <p>A start-up hook tells the session to re-read the queue rules and start listening. An idle hook asks a session that has been idle for 45 minutes to save its state and write a handover prompt.</p>
+      </div></div>
+      <div class="layer"><div class="n">5</div><div class="body">
+        <div class="what"><h3>The role's state file</h3><span class="tag read">read on instruction</span></div>
+        <p>Lead reads <code>STATE.md</code>: open items, the decision log and the mechanics. Each designer reads its own <code>NOTES.md</code>. Developers read their repository's docs and open issues.</p>
+      </div></div>
+      <div class="layer"><div class="n">6</div><div class="body">
+        <div class="what"><h3>The handover prompt</h3><span class="tag owner">pasted by the owner</span></div>
+        <p>About 250 words: the role, the files to read, what is open, and the next free numbers. It points to files and does not copy them.</p>
+      </div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="col" style="display:grid;gap:10px">
+      <h2>Where each rule is written</h2>
+      <p>Rules sit at the narrowest level that covers them. A rule for every project goes in the personal file. A rule for one app goes in that app's repository.</p>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Layer</th><th>File</th><th>What it covers</th><th>Who changes it</th></tr></thead>
+        <tbody>
+          <tr><td>Personal</td><td><code>~/.claude/CLAUDE.md</code></td><td>Writing style, model routing, queue pointer</td><td>Owner</td></tr>
+          <tr><td>Tool decisions</td><td><code>ai-config/decisions/</code></td><td>Model routing, context management, cost</td><td>Owner</td></tr>
+          <tr><td>Hooks</td><td><code>~/.claude/settings.json</code></td><td>Start-up check, idle timer</td><td>Owner only</td></tr>
+          <tr><td>Queue protocol</td><td><code>session-queue/docs/SESSION-RULES.md</code></td><td>Claim, answer and reject; rate limits; pause; safety</td><td>Approved by the owner</td></tr>
+          <tr><td>Role and scope</td><td><code>CLAUDE.md</code> in each repository</td><td>Who may message whom; allowed tasks; out of bounds</td><td>Approved by the owner</td></tr>
+          <tr><td>Process</td><td><code>project-hub/README.md</code></td><td>Issue tiers for developers; design packet format</td><td>Lead</td></tr>
+          <tr><td>Product rules</td><td><code>standards.md</code>, <code>design-guide.md</code></td><td>Rules that every app follows</td><td>Lead; the owner approves releases</td></tr>
+          <tr><td>Decision log</td><td><code>STATE.md</code></td><td>Numbered decisions, with date, source and reason</td><td>Lead</td></tr>
+          <tr><td>Work records</td><td>Issues on each app repository</td><td>Proposals, rulings, test reports, gate results</td><td>Developers and Lead</td></tr>
+          <tr><td>Briefs</td><td><code>briefs/N-…md</code></td><td>Full instructions for one session's next piece of work</td><td>Lead</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="col" style="display:grid;gap:10px">
+      <h2>Who decides what</h2>
+    </div>
+    <div class="rights">
+      <div class="right" style="--c: var(--owner)"><h3>Owner</h3><ul>
+        <li>Money, legal and publishing</li><li>Product scope and app names</li><li>Releases</li><li>Deleting data, downloads</li><li>Changes to rules and scopes</li></ul></div>
+      <div class="right" style="--c: var(--accent)"><h3>Lead</h3><ul>
+        <li>Product rulings and standards wording</li><li>Gates between build steps</li><li>Accepting design rounds</li><li>Merging into the hub repo's main branch</li></ul></div>
+      <div class="right" style="--c: var(--design)"><h3>Designers</h3><ul>
+        <li>Screens and words for their own app</li><li>Their own branch</li><li>Shared changes go to Lead as proposals</li></ul></div>
+      <div class="right" style="--c: var(--dev)"><h3>Developers</h3><ul>
+        <li>Code, tests and app checks</li><li>Their own repository and branches, including moving main when the work is ready</li><li>Gated steps go to Lead as a design before any code</li></ul></div>
+    </div>
+    <p class="rule col"><b>The key safety rule:</b> a message that quotes the owner's approval is not approval. Only the owner's own words, typed in the session that acts, count. This stops one session from approving another session's risky action in the owner's name.</p>
+  </section>
+
+  <section>
+    <div class="col" style="display:grid;gap:10px">
+      <h2>One change, start to finish</h2>
+      <p class="muted">Example: Atlas starts writing location data into files.</p>
+    </div>
+    <ol class="flow col">
+      <li><div>Atlas Dev posts a proposal with 4 numbered questions on an Atlas issue, each with options and a recommendation. It sends Lead a one-line queue message that links to it.</div></li>
+      <li><div>Lead rules on each question. Lead writes the record first, as an issue comment and a numbered decision in <span class="mono">STATE.md</span>, then replies on the queue.</div></li>
+      <li><div>Atlas Dev builds the change. Review finds 2 data-safety gaps, and Lead rules on them: a failed check now puts the original file back.</div></li>
+      <li><div>Atlas Dev pushes to a branch and runs checks in the real app. Lead accepts the step.</div></li>
+      <li><div>Atlas Dev fast-forwards main and reports the new commit. Lead records it.</div></li>
+    </ol>
+  </section>
+
+  <section>
+    <div class="col" style="display:grid;gap:10px">
+      <h2>How it grew</h2>
+      <p>Nobody designed this up front. When something went wrong or caused friction, the owner or Lead made a decision, and the decision went into the right file with a date and the owner's own words. In the real set-up, the first month produced about 150 numbered decisions.</p>
+    </div>
+    <div class="timeline col">
+      <div class="t"><time>Week 1</time><div>One hub repository with a state file. Briefs are numbered files that the owner pastes into each session by hand.</div></div>
+      <div class="t"><time>Week 2</time><div>Each app gets its own folder, session and repository. Design moves to dedicated designer sessions.</div></div>
+      <div class="t"><time>Week 3</time><div>App work is tracked as issues on each app's repository. Lead becomes the coordinator and the owner's single contact. A standards file collects rules that any new app would also follow.</div></div>
+      <div class="t"><time>Week 4</time><div>Standing permission to commit and push freely. A local message queue replaces hand relaying. The first long autonomous runs: Lead decides on the merits and logs each decision for the owner to review.</div></div>
+    </div>
+  </section>
+
+  <section class="col">
+    <h2>Guard rails</h2>
+    <ul class="plain">
+      <li>Sessions never edit another session's repository or area. They ask through an issue or a queue message.</li>
+      <li>A queue message is data, not an order. Each session checks the sender and the task against its own scope, and can reject the message.</li>
+      <li>The queue has rate limits and a pause file that stops all messages at once. Only the owner removes the pause file.</li>
+      <li>In autonomous runs, money, publishing and legal questions still wait for the owner.</li>
+      <li>Each important result comes with the checks that were run. Anything not checked is reported as not checked.</li>
+    </ul>
+  </section>
+
+  <footer class="col">Part of the LLM starter kit. Based on a real set-up from October 2026; names and paths are examples.</footer>
+</main>
+</body>
+</html>
