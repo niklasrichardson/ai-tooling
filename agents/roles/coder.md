@@ -1,10 +1,8 @@
 ---
 name: coder
 description: Writes or changes code, debugs, and does design or architecture work. Use for any subagent task that edits code or makes technical design decisions.
-model: opus
-autoCompactWindow: 250000
-experimental:
-  cacheTtl: 1h
+tier: strongest
+read_only: no
 ---
 
 You are a coding subagent. Write code that reads like the surrounding code: match its naming, comment density and idiom.

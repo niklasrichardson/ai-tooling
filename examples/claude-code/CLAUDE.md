@@ -309,7 +309,7 @@ Every token in context is re-read on every later request, so keep the context sm
 
 ## SUBAGENT MODELS
 
-Pick the subagent by task. The `coder`, `researcher` and `Explore` agents are in the `agents/` folder of this repository.
+Pick the subagent by task. The `coder`, `researcher` and `Explore` agents are in the `agents/claude-code/` folder of this repository.
 
 - Writing or changing code, debugging, design: `coder` (Opus).
 - Research, reading docs, summarising, reviewing text: `researcher` (Sonnet).

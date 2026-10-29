@@ -1,0 +1,5 @@
+# Codex only. Other tools ignore this file.
+# Keeps the skill manual-only in Codex: start it with $handoff or /skills.
+# Delete this file to let Codex start the skill on its own.
+policy:
+  allow_implicit_invocation: false

@@ -11,7 +11,7 @@ Instructions, a starter kit, a skill and subagents that make AI assistants answe
 | --- | --- |
 | [Starter kit](starter-kit/README.md) | Your AI tool reads these files, asks you a few questions and sets everything up for you. |
 | [Examples](docs/examples.md) | My own instructions for Claude Code, Codex, Claude and ChatGPT, with personal details replaced by placeholders. |
-| [Claude Code extras](docs/claude-code.md) | A `/handoff` skill for clearing a session safely, and three subagents tied to models. |
+| [Skills and agents](docs/skills-and-agents.md) | A handoff skill for clearing a session safely, and three agents tied to model tiers. For Claude Code, Codex and other agents. |
 
 ## Getting started
 
@@ -19,14 +19,15 @@ Instructions, a starter kit, a skill and subagents that make AI assistants answe
 
 1. Download `starter-kit/1-response-style.md` from this repository. In a Claude Code session, give it the file and say: "Read this file and follow its instructions."
 2. Claude Code asks you a few questions, shows you the instructions it will write to `~/.claude/CLAUDE.md`, and writes them when you agree.
-3. Optional: install the [handoff skill and subagents](docs/claude-code.md).
+3. Optional: install the [handoff skill and agents](docs/skills-and-agents.md).
 4. Start a new session so that Claude Code loads the changes.
 
 ### Codex
 
 1. Download `starter-kit/1-response-style.md` from this repository. In a Codex chat, give it the file and say: "Read this file and follow its instructions."
 2. Codex asks you a few questions, shows you the instructions it will write to `~/.codex/AGENTS.md`, and writes them when you agree.
-3. Start a new chat so that Codex loads the changes.
+3. Optional: install the [handoff skill and agents](docs/skills-and-agents.md).
+4. Start a new chat so that Codex loads the changes.
 
 ### Claude and ChatGPT
 
