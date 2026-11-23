@@ -334,10 +334,30 @@ Clean up git worktrees when their work is complete. Unused worktrees and their b
 
 - A worktree's work is complete when its branch is merged or its work is abandoned, and it has no uncommitted changes and no unpushed commits.
 - Then remove it with `git worktree remove <path>` and delete its merged branch with `git branch -d <branch>`. Never use `--force`.
+- Exception: after a squash merge, `git branch -d` refuses, because git does not see the branch as merged. Then use `git branch -D <branch>`, but only when GitHub shows the pull request as merged, the branch tip is the same commit as the head commit of that pull request, and the branch has no unpushed commits.
 - This includes worktrees that subagents create (`isolation: "worktree"`). After you merge or discard a subagent's branch, remove its worktree in the same turn.
 - Before you end a task, run `git worktree list` and clean up each completed worktree that you or your subagents made.
 - If a worktree fails a check, keep it and tell me which one and why.
 - Never remove the worktree that this session or another running session works in. Tell me when this session's own work is complete, so that I can archive the session.
+
+### Build location
+
+Put build output in `<build root>\<project>`. `<build root>` is a folder for disposable build output on a fast drive with enough free space, for example `_Scratchpad\_builds`.
+
+- Point Cargo's target folder (`CARGO_TARGET_DIR` or `target-dir`) and similar build output there. For a worktree or a one-off build, use `<build root>\<project>-<purpose>`.
+- Set the path in the environment or in a Git-ignored local config, never as a tracked machine path.
+- `<build root>` holds disposable output only. Never put data, a queue root or anything that must be kept there.
+- If the drive of `<build root>` has too little free space for the build, tell me before you build anywhere else.
+
+### Build folders
+
+Delete build output folders when they are no longer needed. Old per-worktree build folders can fill a drive.
+
+- A build folder is no longer needed when no worktree or running session builds into it, for example after its worktree is removed. This covers Cargo target folders and similar output under `<build root>`.
+- When you remove a worktree, delete its build folder in the same turn. Before you end a task, check `<build root>` for folders of this project that no worktree uses, and delete them.
+- Keep the project's main build folder (for example `<build root>\<project>`), because it holds the binaries in use.
+- Do not delete another project's build folders unless I ask. Another session may use them.
+- Report which folders you deleted and the space you freed.
 
 ## SESSION QUEUE
 
