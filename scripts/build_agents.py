@@ -2,7 +2,7 @@
 
 Reads agents/roles/<role>.md and writes:
   agents/claude-code/<role>.md  (Claude Code subagent)
-  agents/codex/<role>.toml      (Codex custom agent)
+  agents/codex/<role>.toml      (Codex custom agent, unless claude_code_only: yes)
 
 Run from anywhere: python scripts/build_agents.py
 Uses only the Python standard library.
@@ -17,16 +17,17 @@ CLAUDE_DIR = ROOT / "agents" / "claude-code"
 CODEX_DIR = ROOT / "agents" / "codex"
 
 # Claude Code model alias for each tier.
-CLAUDE_MODELS = {"strongest": "opus", "middle": "sonnet", "fast": "haiku"}
+CLAUDE_MODELS = {"best": "fable", "strongest": "opus", "middle": "sonnet", "fast": "haiku"}
 
 # Codex has one example model; the tiers differ by reasoning effort.
 CODEX_MODEL = "gpt-6.1-sol"
-CODEX_EFFORT = {"strongest": "xhigh", "middle": "medium", "fast": "low"}
+CODEX_EFFORT = {"best": "xhigh", "strongest": "xhigh", "middle": "medium", "fast": "low"}
 
 # Claude Code tools for a read-only role: no tools that write files.
 CLAUDE_READ_ONLY_TOOLS = "Read, Grep, Glob, Bash, PowerShell, WebFetch, WebSearch"
 
 REQUIRED = ("name", "description", "tier", "read_only")
+YES_NO = ("read_only", "claude_code_only")
 
 
 def read_role(path):
@@ -49,9 +50,17 @@ def read_role(path):
         raise ValueError(f"{path}: name must match the file name")
     if fields["tier"] not in CLAUDE_MODELS:
         raise ValueError(f"{path}: tier must be one of {', '.join(CLAUDE_MODELS)}")
-    if fields["read_only"] not in ("yes", "no"):
-        raise ValueError(f"{path}: read_only must be yes or no")
+    for key in YES_NO:
+        if fields.get(key, "no") not in ("yes", "no"):
+            raise ValueError(f"{path}: {key} must be yes or no")
+    if "claude_code_tools" in fields and fields["read_only"] != "yes":
+        raise ValueError(f"{path}: claude_code_tools needs read_only: yes")
     return fields, body.strip() + "\n"
+
+
+def tool_list(value):
+    """Return the names in a comma-separated field."""
+    return [name.strip() for name in value.split(",") if name.strip()]
 
 
 def quote(value):
@@ -90,11 +99,16 @@ def claude_agent(role, fields, body):
         )
     lines += [
         f"name: {name}",
-        f"description: {quote(fields['description'])}",
+        f"description: {quote(fields.get('claude_code_description', fields['description']))}",
         f"model: {CLAUDE_MODELS[fields['tier']]}",
     ]
     if fields["read_only"] == "yes":
-        lines.append(f"tools: {CLAUDE_READ_ONLY_TOOLS}")
+        tools = ", ".join(tool_list(fields.get("claude_code_tools", CLAUDE_READ_ONLY_TOOLS)))
+        lines.append(f"tools: {tools}")
+    disallowed = tool_list(fields.get("claude_code_disallowed_tools", ""))
+    if disallowed:
+        lines.append("disallowedTools:")
+        lines += [f"  - {tool}" for tool in disallowed]
     lines += ["---", "", body]
     return "\n".join(lines)
 
@@ -134,7 +148,8 @@ def main():
         fields, body = read_role(path)
         role = path.stem
         write(CLAUDE_DIR / f"{role}.md", claude_agent(role, fields, body))
-        write(CODEX_DIR / f"{role}.toml", codex_agent(role, fields, body))
+        if fields.get("claude_code_only", "no") == "no":
+            write(CODEX_DIR / f"{role}.toml", codex_agent(role, fields, body))
 
 
 if __name__ == "__main__":

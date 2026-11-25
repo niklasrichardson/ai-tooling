@@ -327,6 +327,7 @@ Pick the subagent by task. The `coder`, `researcher` and `Explore` agents are in
 - Do not use a weaker model for coding or architecture work.
 - If a subagent's result fails verification (tests, checks against files), re-run the task once on the next model up (Haiku, then Sonnet, then Opus) and tell me.
 - Use Fable only when I ask for it.
+- Keep every user-level subagent in `~/.claude/agents/` project agnostic: its file names no project, session, role or workflow. A project's own rules say when to call it (owner, 25 November 2026).
 
 ## WORKTREES
 

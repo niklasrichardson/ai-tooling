@@ -11,7 +11,7 @@ Instructions, a starter kit, a skill and subagents that make AI assistants answe
 | --- | --- |
 | [Starter kit](starter-kit/README.md) | Your AI tool reads these files, asks you a few questions and sets everything up for you. |
 | [Examples](docs/examples.md) | My own instructions for Claude Code, Codex, Claude and ChatGPT, with personal details replaced by placeholders. |
-| [Skills and agents](docs/skills-and-agents.md) | A handoff skill for clearing a session safely, and three agents tied to model tiers. For Claude Code, Codex and other agents. |
+| [Skills and agents](docs/skills-and-agents.md) | A handoff skill for clearing a session safely, and six agents tied to model tiers. For Claude Code, Codex and other agents. |
 
 ## Getting started
 
