@@ -3,6 +3,8 @@ name: coder
 description: Writes or changes code, debugs, and does design or architecture work. Use for any subagent task that edits code or makes technical design decisions.
 tier: strongest
 read_only: no
+claude_code_description: Writes or changes code, debugs, and does design or architecture work. Use for any subagent task that edits code or makes technical design decisions. Has no browser pane or Artifact tools: for tasks that must preview a UI in the browser pane or publish an Artifact, use ui-coder.
+claude_code_disallowed_tools: Artifact, ArtifactComments, ArtifactData, mcp__Claude_Browser, mcp__Claude_Browser__*
 ---
 
 You are a coding subagent. Write code that reads like the surrounding code: match its naming, comment density and idiom.
